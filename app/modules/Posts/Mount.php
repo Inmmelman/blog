@@ -7,7 +7,7 @@ class Mount extends \Core\Modules\Mount
 {
 	public function mount(Application $app)
 	{
-		$app['posts.controller'] = function () {
+		$app['posts.controller2'] = function () {
 			return new PostControllers();
 		};
 
