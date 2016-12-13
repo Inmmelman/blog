@@ -10,7 +10,7 @@ namespace Core;
 
 use Silex\Application;
 
-abstract class Mount
+abstract class MountAbstract
 {
     abstract public function mount(Application $app);
 }

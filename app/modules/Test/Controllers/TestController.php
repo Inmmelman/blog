@@ -1,7 +1,7 @@
 <?php
-namespace Post\Controllers;
+namespace Test\Controllers;
 
-class PostController
+class TestController
 {
     /**
      * @var \Silex\Application $app;
@@ -17,14 +17,10 @@ class PostController
         $this->viewPath = preg_replace('/Controller$/', '', $classRelatedPart) . '/';
     }
 
-    public function listPostsActions()
-	{
-		return $this->render('View/post');
-	}
 
 	public function testActions()
 	{
-		die('test');
+		die('new module controller');
 	}
 
     protected function resolveTemplate($templateName)

@@ -5,6 +5,9 @@ use Post\Mount;
 use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\TwigServiceProvider;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class Application extends \Silex\Application {
 
@@ -45,15 +48,59 @@ class Application extends \Silex\Application {
         $this->register(new ServiceControllerServiceProvider());
         $this->register(
             new MonologServiceProvider(),
-            array(
+            [
                 'monolog.logfile' => CORE_RUNTIME_DIR . '/logs/development.log',
-            )
+            ]
         );
+	    $this->registerModules();
 
-        $m = new Mount();
-        $m->mount($this);
+//        $m = new Mount();
+//        $m->mount($this);
     }
 
+	protected function getModuleDirectories(){
+		$includePaths = ['app/modules'];
+		$finder = new Finder();
+
+        $moduleDirectories = array_map(
+            function ($path) use ($finder) {
+                $path = CORE_ROOT_DIR . '/' . $path;
+                try {
+                    $finder->in($path);
+                } catch (InvalidArgumentException $e) {
+                    // In case if directory listed in config does not exists
+                    $path = null;
+                }
+
+                return $path;
+            },
+            $includePaths
+        );
+        $moduleDirectories = array_filter($moduleDirectories);
+
+        /**
+         * Finder needs to be re-initialized,
+         * @see https://github.com/symfony/symfony/issues/8871
+         */
+        $finder = new Finder();
+
+        return $finder->in($moduleDirectories)->depth('<1');
+	}
+
+	protected function registerModules(){
+		/** @var Application $app */
+        $moduleDirectories = $this->getModuleDirectories();
+	    /** @var SplFileInfo $moduleDirectory */
+        foreach ($moduleDirectories as $moduleDirectory) {
+	        $moduleName = $moduleDirectory->getRelativePathname();
+            $moduleClassName = $moduleDirectory->getRelativePathname() . '\\Mount';
+            if ( class_exists($moduleClassName)) {
+                /** @var Mount $module */
+                $module = new $moduleClassName();
+                $module->mount($this);
+            }
+        }
+	}
     protected function initTwig()
     {
         $paths = array_map(

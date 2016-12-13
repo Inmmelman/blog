@@ -1,10 +1,11 @@
 <?php
 namespace Post;
 
+use Core\MountAbstract;
 use Post\Controllers\PostController;
 use Silex\Application;
 
-class Mount extends \Core\Mount
+class Mount extends MountAbstract
 {
 	public function mount(Application $app)
 	{
@@ -13,5 +14,6 @@ class Mount extends \Core\Mount
 		};
 
 		$app->get('/post', 'posts.controller:listPostsActions');
+		$app->get('/test-c', 'posts.controller:testActions');
 	}
 }
