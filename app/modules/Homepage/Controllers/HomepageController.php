@@ -1,6 +1,8 @@
 <?php
 namespace Homepage\Controllers;
 
+use Entity\Post;
+
 class HomepageController
 {
     /**
@@ -20,6 +22,13 @@ class HomepageController
 
 	public function indexActions()
 	{
+		/**
+		 * @var Post $article
+		 */
+		$article = new Post();
+		$article->setContent('Hello world!');
+		$this->app['db.orm.em']->persist($article);
+		$this->app['db.orm.em']->flush();
 		return $this->render('View/homepage');
 	}
 

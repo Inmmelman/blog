@@ -1,7 +1,9 @@
 <?php
 namespace Core;
 
+use Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
 use Post\Mount;
+use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\TwigServiceProvider;
@@ -52,10 +54,8 @@ class Application extends \Silex\Application {
                 'monolog.logfile' => CORE_RUNTIME_DIR . '/logs/development.log',
             ]
         );
-	    $this->registerModules();
 
-//        $m = new Mount();
-//        $m->mount($this);
+	    $this->registerModules();
     }
 
 	protected function getModuleDirectories(){
@@ -125,4 +125,27 @@ class Application extends \Silex\Application {
             $this->twig->disableDebug();
         }
     }
+
+	protected function initDoctrine(){
+		$this->register(new DoctrineServiceProvider(), [
+		    'db.options' => array(
+		        'dbname' => 'blog',
+		    ),
+		]);
+
+		// Register Doctrine ORM
+		$this->register(new DoctrineOrmServiceProvider(), [
+		    'orm.proxies_dir' => CORE_ROOT_DIR.'/Proxies',
+		    'orm.em.options' => array(
+		        'mappings' => array(
+		            // Using actual filesystem paths
+		            array(
+		                'type' => 'annotation',
+		                'namespace' => 'Entities',
+		                'path' => CORE_ROOT_DIR.'/Entities',
+		            )
+		        ),
+		    ),
+		]);
+	}
 }
