@@ -56,6 +56,7 @@ class Application extends \Silex\Application {
         );
 
 	    $this->registerModules();
+	    $this->initDoctrine();
     }
 
 	protected function getModuleDirectories(){
@@ -120,6 +121,7 @@ class Application extends \Silex\Application {
                 'twig.class_path' => CORE_ROOT_DIR . '/vendor/twig/lib',
             ]
         );
+        $this->twig->addExtension(new \Twig_Extension_Debug());
 
         if (!$this->debug) {
             $this->twig->disableDebug();

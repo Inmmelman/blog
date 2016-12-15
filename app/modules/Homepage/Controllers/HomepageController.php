@@ -1,7 +1,8 @@
 <?php
 namespace Homepage\Controllers;
 
-use Entity\Post;
+use Doctrine\ORM\EntityManager;
+use Entities\Post;
 
 class HomepageController
 {
@@ -9,12 +10,16 @@ class HomepageController
      * @var \Silex\Application $app;
      */
     protected $app = null;
-
+	/**
+	 * @var EntityManager $em;
+	 */
+	protected $em = null;
     protected $viewPath = '';
 
     public function __construct($app)
     {
         $this->app = $app;
+
         $classRelatedPart = strtr(explode('\\Controllers', get_called_class())[1], ['\\' => '/']);
         $this->viewPath = preg_replace('/Controller$/', '', $classRelatedPart) . '/';
     }
@@ -25,10 +30,6 @@ class HomepageController
 		/**
 		 * @var Post $article
 		 */
-		$article = new Post();
-		$article->setContent('Hello world!');
-		$this->app['db.orm.em']->persist($article);
-		$this->app['db.orm.em']->flush();
 		return $this->render('View/homepage');
 	}
 

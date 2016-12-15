@@ -1,14 +1,15 @@
 <?php
-namespace Entity;
+namespace Entities;
 
 /**
  * @Entity
+ * @Table(name="posts")
  */
 class Post {
 
 
     /**
-     * @Id @Column(type="integer")
+     * @id @Column(type="integer", nullable=false, options={"unsigned" = true})
      * @GeneratedValue
      */
     private $id;

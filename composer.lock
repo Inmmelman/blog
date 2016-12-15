@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2224678b9e4344b1f4f6981a1dcc3e71",
+    "content-hash": "17c3ed94274fcaccb59b4169d2f6ea32",
     "packages": [
         {
             "name": "dflydev/doctrine-orm-service-provider",
@@ -1827,26 +1827,26 @@
         },
         {
             "name": "symfony/monolog-bridge",
-            "version": "v2.8.5",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bridge.git",
-                "reference": "a61725fb8af61a764602a9ef2aa67e430e93589e"
+                "reference": "ed983d3affdccb8d8ecf38b58fb23d9be2883419"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/monolog-bridge/zipball/a61725fb8af61a764602a9ef2aa67e430e93589e",
-                "reference": "a61725fb8af61a764602a9ef2aa67e430e93589e",
+                "url": "https://api.github.com/repos/symfony/monolog-bridge/zipball/ed983d3affdccb8d8ecf38b58fb23d9be2883419",
+                "reference": "ed983d3affdccb8d8ecf38b58fb23d9be2883419",
                 "shasum": ""
             },
             "require": {
                 "monolog/monolog": "~1.11",
-                "php": ">=5.3.9"
+                "php": ">=5.5.9",
+                "symfony/http-kernel": "~2.8|~3.0"
             },
             "require-dev": {
-                "symfony/console": "~2.4|~3.0.0",
-                "symfony/event-dispatcher": "~2.2|~3.0.0",
-                "symfony/http-kernel": "~2.4"
+                "symfony/console": "~2.8|~3.0",
+                "symfony/event-dispatcher": "~2.8|~3.0"
             },
             "suggest": {
                 "symfony/console": "For the possibility to show log messages in console commands depending on verbosity settings. You need version ~2.3 of the console for it.",
@@ -1856,7 +1856,7 @@
             "type": "symfony-bridge",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -1883,7 +1883,7 @@
             ],
             "description": "Symfony Monolog Bridge",
             "homepage": "https://symfony.com",
-            "time": "2016-04-05T16:36:54+00:00"
+            "time": "2016-11-05T09:30:35+00:00"
         },
         {
             "name": "symfony/options-resolver",
