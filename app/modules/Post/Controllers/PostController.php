@@ -12,15 +12,15 @@ class PostController
 
     public function __construct($app)
     {
-        $this->em = $this->app['orm.em'];
-        $this->app = $app;
-        $classRelatedPart = strtr(explode('\\Controllers', get_called_class())[1], ['\\' => '/']);
+	    $this->app = $app;
+	    $this->em = $this->app['orm.em'];
+	    $classRelatedPart = strtr(explode('\\Controllers', get_called_class())[1], ['\\' => '/']);
         $this->viewPath = preg_replace('/Controller$/', '', $classRelatedPart) . '/';
     }
 
     public function listPostsActions()
 	{
-		return $this->render('View/post', ['posts' => $this->app['orm.em']]);
+		return $this->render('View/post', ['posts' => $this->getPostList()]);
 	}
 
 	public function addPost()
@@ -31,6 +31,8 @@ class PostController
 		//		$em->persist($article);
 		//		$em->flush();
 	}
+	
+	
 	
 	/**
 	 * Get posts list
