@@ -1,15 +1,20 @@
 <?php
 namespace Core;
 
+use Core\Security\User\UserProvider;
 use Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
 use Post\Mount;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
+use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
+use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 
 class Application extends \Silex\Application {
 
@@ -40,7 +45,6 @@ class Application extends \Silex\Application {
     public function __call($method, $args)
     {
         $service = $this->$method;
-
         return call_user_func_array($service, $args);
     }
 
@@ -54,9 +58,16 @@ class Application extends \Silex\Application {
                 'monolog.logfile' => CORE_RUNTIME_DIR . '/logs/development.log',
             ]
         );
-
+$this->get('/login', function(Request $request)  {
+    return $this['twig']->render('login.twig', array(
+        'error'         => $this['security.last_error']($request),
+        'last_username' => $this['session']->get('_security.last_username'),
+    ));
+});
 	    $this->registerModules();
 	    $this->initDoctrine();
+	    $this->initSessionsService();
+	    $this->initSecurityServiceProvider();
     }
 
 	protected function getModuleDirectories(){
@@ -86,6 +97,11 @@ class Application extends \Silex\Application {
         $finder = new Finder();
 
         return $finder->in($moduleDirectories)->depth('<1');
+	}
+	
+	protected function initSessionsService() {
+		$this->register(new SessionServiceProvider());
+		$this['session.storage.handler'] = null;
 	}
 
 	protected function registerModules(){
@@ -149,5 +165,72 @@ class Application extends \Silex\Application {
 		        ),
 		    ),
 		]);
+	}
+	
+	protected function initSecurityServiceProvider()
+	{
+		$this['security.firewalls'] = [];
+		$this->register(
+			new SecurityServiceProvider(),
+			[
+				'security.firewalls' => [
+					'login' => array(
+				        'pattern' => '^/login$',
+				    ),
+					'admin' => array(
+				        'pattern' => '^/admin/',
+				        'form' => array('login_path' => '/login', 'check_path' => '/admin/login_check'),
+//				        'users' => array(
+//				            'admin' => array('ROLE_ADMIN', '$2y$10$3i9/lVd8UOFIJ6PAMFt8gu3/r5g0qeCJvoSlLCsvMTythye19F77a'),
+//				        ),
+				    ),
+
+					'main' => [
+						'pattern' => '^/',
+						'anonymous' => true,
+						'form' => [
+							'login_path' => '/',
+							'check_path' => '/check-login'
+						],
+						'logout' => [
+							'logout_path' => '/logout',
+						],
+						'users' => new UserProvider('')
+					]
+				],
+				'security.access_rules' => [
+					['^/(_profiler|_wdt|service/is-logged-in|service/api-request-history/).*', 'IS_AUTHENTICATED_ANONYMOUSLY'],
+					['^/.+', 'IS_AUTHENTICATED_FULLY'],
+					['^/', 'IS_AUTHENTICATED_ANONYMOUSLY'],
+				],
+				'security.role_hierarchy' => [
+					'ROLE_ROOT' => ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_GUEST'],
+					'ROLE_ADMIN' => [],
+					'ROLE_MANAGER' => [],
+					'ROLE_GUEST' => []
+				]
+			]
+		);
+		$this->initCoreSecurity();
+	}
+	
+	protected function initCoreSecurity()
+	{
+		$this['accessDispatcher'] = $this->protect(
+			function () {
+				return new Dispatcher($this);
+			}
+		);
+//
+//		$this['security.voters'] = $this->extend(
+//			'security.voters',
+//			function ($voters) {
+//				$voters[] = $this['ipRestrictionVoter'];
+//
+//				return $voters;
+//			}
+//		);
+
+		$this['security.access_manager'] =  new AccessDecisionManager($this['security.voters'], 'unanimous');
 	}
 }
