@@ -122,7 +122,7 @@ class Application extends \Silex\Application {
             ]
         );
         $this->twig->addExtension(new \Twig_Extension_Debug());
-
+		$this->twig->disableDebug();
         if (!$this->debug) {
             $this->twig->disableDebug();
         }
