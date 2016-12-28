@@ -3,6 +3,12 @@ namespace Core;
 
 use Core\Security\User\UserProvider;
 use Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\CachedReader;
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\DriverChain;
 use Post\Mount;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
@@ -58,17 +64,14 @@ class Application extends \Silex\Application {
                 'monolog.logfile' => CORE_RUNTIME_DIR . '/logs/development.log',
             ]
         );
-$this->get('/login', function(Request $request)  {
-    return $this['twig']->render('login.twig', array(
-        'error'         => $this['security.last_error']($request),
-        'last_username' => $this['session']->get('_security.last_username'),
-    ));
-});
-	    $this->registerModules();
+        
+
 	    $this->initDoctrine();
 	    $this->initSessionsService();
 	    $this->initSecurityServiceProvider();
-    }
+	    
+        $this->registerModules();
+	}
 
 	protected function getModuleDirectories(){
 		$includePaths = ['app/modules'];
@@ -160,10 +163,12 @@ $this->get('/login', function(Request $request)  {
 		            array(
 		                'type' => 'annotation',
 		                'namespace' => 'Entities',
-		                'path' => CORE_ROOT_DIR.'/Entities',
+			            'use_simple_annotation_reader' => false,
+		                'path' => CORE_MODULES_DIR.'/Entities',
 		            )
 		        ),
-		    ),
+		    )
+			
 		]);
 	}
 	
@@ -174,44 +179,37 @@ $this->get('/login', function(Request $request)  {
 			new SecurityServiceProvider(),
 			[
 				'security.firewalls' => [
-					'login' => array(
-				        'pattern' => '^/login$',
-				    ),
-					'admin' => array(
-				        'pattern' => '^/admin/',
-				        'form' => array('login_path' => '/login', 'check_path' => '/admin/login_check'),
-//				        'users' => array(
-//				            'admin' => array('ROLE_ADMIN', '$2y$10$3i9/lVd8UOFIJ6PAMFt8gu3/r5g0qeCJvoSlLCsvMTythye19F77a'),
-//				        ),
-				    ),
-
-					'main' => [
-						'pattern' => '^/',
-						'anonymous' => true,
-						'form' => [
-							'login_path' => '/',
-							'check_path' => '/check-login'
-						],
-						'logout' => [
-							'logout_path' => '/logout',
-						],
-						'users' => new UserProvider('')
-					]
-				],
-				'security.access_rules' => [
-					['^/(_profiler|_wdt|service/is-logged-in|service/api-request-history/).*', 'IS_AUTHENTICATED_ANONYMOUSLY'],
-					['^/.+', 'IS_AUTHENTICATED_FULLY'],
-					['^/', 'IS_AUTHENTICATED_ANONYMOUSLY'],
-				],
-				'security.role_hierarchy' => [
-					'ROLE_ROOT' => ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_GUEST'],
-					'ROLE_ADMIN' => [],
-					'ROLE_MANAGER' => [],
-					'ROLE_GUEST' => []
+	                'main' => [
+	                    'pattern' => '^/',
+	                    'anonymous' => true,
+		                'security' => true,
+	                    'form' => [
+	                        'login_path' => 'login',
+	                        'check_path' => 'security_check',
+	                    ],
+	                    'logout' => [
+	                        'logout_path' => '/logout',
+	                    ],
+	                    'users' => new UserProvider($this),
+	                ]
 				]
 			]
 		);
+		
+		  
+		 
+		$mappingDriverChains = new MappingDriverChain();
+		$mappingDriverChain = new AnnotationDriver(
+            new CachedReader(new AnnotationReader(), new ArrayCache()),
+            (array) [CORE_MODULES_DIR.'/Core/Security/User']
+        );
+        $mappingDriverChains->addDriver($mappingDriverChain, 'Core\Security\User');
+
+		$this['orm.add_mapping_driver']($mappingDriverChains, 'Core\Security\User');
+		
+		
 		$this->initCoreSecurity();
+		
 	}
 	
 	protected function initCoreSecurity()

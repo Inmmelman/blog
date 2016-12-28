@@ -23,6 +23,9 @@
     "psr/log": "^1.0",
     "dflydev/doctrine-orm-service-provider": "^2.0"
   },
+   "config": {
+        "bin-dir": "bin"
+    },
   "autoload": {
     "psr-0": {
       "": [

@@ -1,8 +1,8 @@
 <?php
 namespace Core\Security\User;
 
-use Core\Persistence\RepositoryInterface;
-use Core\Security\Access\Exception\UserBlocked;
+use Core\Application;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -14,11 +14,17 @@ class UserProvider implements UserProviderInterface
     /**
      * @var \Core\Persistence\RepositoryInterface
      */
-    private $repository;
+    private $app;
+	
+	/**
+	 * @var EntityManager
+	 */
+    protected $em;
 
-    public function __construct($repository)
+    public function __construct(Application $app)
     {
-        $this->repository = $repository;
+        $this->app = $app;
+        $this->em = $app['orm.em'];
     }
 
 	/**
@@ -35,7 +41,8 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
 	    /** @var \Core\Security\User\User $user */
-		$user = $this->repository->findOneBy('username', $username);
+//	    'username', $username
+		$user = $this->em->getRepository('Core\Security\User')->findOneBy(['username' => $username]);
 
 	    if (null === $user) {
 			throw new UsernameNotFoundException();

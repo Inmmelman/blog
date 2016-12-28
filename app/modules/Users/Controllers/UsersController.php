@@ -1,37 +1,28 @@
 <?php
-namespace Homepage\Controllers;
+namespace Users\Controllers;
 
-use Core\Security\User\Role;
-use Core\Security\User\User;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
-
-class HomepageController
+class UsersController
 {
     /**
      * @var \Silex\Application $app;
      */
     protected $app = null;
-	/**
-	 * @var EntityManager $em;
-	 */
-	protected $em = null;
+
     protected $viewPath = '';
 
     public function __construct($app)
     {
-        $this->app = $app;
-		$this->em = $this->app['orm.em'];
-        $classRelatedPart = strtr(explode('\\Controllers', get_called_class())[1], ['\\' => '/']);
+	    $this->app = $app;
+	    $this->em = $this->app['orm.em'];
+	    $classRelatedPart = strtr(explode('\\Controllers', get_called_class())[1], ['\\' => '/']);
         $this->viewPath = preg_replace('/Controller$/', '', $classRelatedPart) . '/';
     }
-
-
-	public function indexActions()
+	
+	public function loginActions()
 	{
-		return $this->render('View/homepage');
+		return $this->render('View/login');
 	}
-
+	
     protected function resolveTemplate($templateName)
     {
         return $this->viewPath . $templateName . '.twig';
