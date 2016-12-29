@@ -16,6 +16,7 @@ use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\TwigServiceProvider;
+use Symfony\Component\Debug\Debug;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
@@ -64,7 +65,8 @@ class Application extends \Silex\Application {
                 'monolog.logfile' => CORE_RUNTIME_DIR . '/logs/development.log',
             ]
         );
-        
+        Debug::enable();
+		$this['debug'] = true;
 
 	    $this->initDoctrine();
 	    $this->initSessionsService();
@@ -145,6 +147,11 @@ class Application extends \Silex\Application {
         if (!$this->debug) {
             $this->twig->disableDebug();
         }
+        
+        $function = new \Twig_SimpleFunction('is_granted', function($role){
+		    return $this['security.authorization_checker']->isGranted($role);
+		});
+		$this['twig']->addFunction($function);
     }
 
 	protected function initDoctrine(){
@@ -178,6 +185,9 @@ class Application extends \Silex\Application {
 		$this->register(
 			new SecurityServiceProvider(),
 			[
+				'security.role_hierarchy' => [
+					'ROLE_ADMIN' => array('ROLE_USER', 'ROLE_ALLOWED_TO_SWITCH'),
+				],
 				'security.firewalls' => [
 	                'main' => [
 	                    'pattern' => '^/',
@@ -188,7 +198,7 @@ class Application extends \Silex\Application {
 	                        'check_path' => 'security_check',
 	                    ],
 	                    'logout' => [
-	                        'logout_path' => '/logout',
+	                        'logout_path' => 'logout',
 	                    ],
 	                    'users' => new UserProvider($this),
 	                ]
@@ -208,7 +218,7 @@ class Application extends \Silex\Application {
 		$this['orm.add_mapping_driver']($mappingDriverChains, 'Core\Security\User');
 		
 		
-		$this->initCoreSecurity();
+//		$this->initCoreSecurity();
 		
 	}
 	

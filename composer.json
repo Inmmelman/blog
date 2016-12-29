@@ -21,7 +21,8 @@
     "swiftmailer/swiftmailer": "5.*",
     "monolog/monolog": "~1.22",
     "psr/log": "^1.0",
-    "dflydev/doctrine-orm-service-provider": "^2.0"
+    "dflydev/doctrine-orm-service-provider": "^2.0",
+    "silex/web-profiler": "^2.0"
   },
    "config": {
         "bin-dir": "bin"
@@ -29,7 +30,7 @@
   "autoload": {
     "psr-0": {
       "": [
-        "app/modules", "app/Entities"
+        "app/modules", "app/Entities", "app/modules/Core/Security"
       ]
     }
   }

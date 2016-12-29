@@ -2,6 +2,7 @@
 namespace Core\Security\User;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 /**
@@ -148,7 +149,7 @@ class User implements UserInterface
      */
     public function getRoles()
     {
-        return $this->getUserRoles()->toArray();
+        return ['ROLE_ADMIN']; //$this->getUserRoles()->toArray();
     }
  
     /**

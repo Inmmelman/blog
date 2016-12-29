@@ -42,13 +42,13 @@ class UserProvider implements UserProviderInterface
     {
 	    /** @var \Core\Security\User\User $user */
 //	    'username', $username
-		$user = $this->em->getRepository('Core\Security\User')->findOneBy(['username' => $username]);
+		$user = $this->em->getRepository('Core\Security\User\User')->findOneBy(['username' => $username]);
 
 	    if (null === $user) {
 			throw new UsernameNotFoundException();
-	    } elseif (true === $user->getIsHidden()) {
+	    } /*elseif (true === $user->getIsHidden()) {
 		    throw new UserBlocked("core.security.user.is_blocked");
-		}
+		}*/
 
 		return $user;
 	}

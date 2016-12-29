@@ -1,6 +1,8 @@
 <?php
 namespace Users\Controllers;
 
+use Symfony\Component\HttpFoundation\Request;
+
 class UsersController
 {
     /**
@@ -18,9 +20,13 @@ class UsersController
         $this->viewPath = preg_replace('/Controller$/', '', $classRelatedPart) . '/';
     }
 	
-	public function loginActions()
+	public function loginActions(Request $request)
 	{
-		return $this->render('View/login');
+		
+		return $this->render('View/login', [
+			'error'=> $this->app['security.last_error']($request),
+	        'last_username' => $this->app['session']->get('_security.last_username'),
+		]);
 	}
 	
     protected function resolveTemplate($templateName)

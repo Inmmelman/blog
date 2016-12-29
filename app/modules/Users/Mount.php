@@ -14,7 +14,7 @@ class Mount extends MountAbstract
 			return new UsersController($app);
 		};
 
-		$app->get('/login', 'users.controller:loginActions')->bind('_security_login');
+		$app->get('/login', 'users.controller:loginActions')->bind('login');
 //		$app->post('/login_check', '')->bind('_security_check');
 		$app->get('/admin/', 'users.controller:testActions');
 	}
