@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="ie8" lang="en"><![endif]-->
+<!--[if IE 9]><html class="ie9" lang="en"><![endif]-->
+<!--[if !IE]><!-->
+
+<html lang="en">
+{% include "header.twig" %}
+<body>
+<div id="app">
+	{% include "sidebar.twig" %}
+	<div class="app-content">
+		{% include 'nav_top.twig' %}
+        {% block maincontent %} {% endblock %}
+	</div>
+
+	<footer>
+		<div class="footer-inner">
+			<div class="pull-left">
+				&copy; <span class="current-year"></span><span class="text-bold text-uppercase"> ClipTheme</span>. <span>All rights reserved</span>
+			</div>
+			<div class="pull-right">
+				<span class="go-top"><i class="ti-angle-up"></i></span>
+			</div>
+		</div>
+	</footer>
+</div>
+
+{% include 'bottom_js.twig' %}
+<script>
+    jQuery(document).ready(function() {
+        Main.init();
+        Index.init();
+    });
+</script>
+
+</body>
+</html>

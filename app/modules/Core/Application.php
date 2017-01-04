@@ -10,6 +10,7 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Mapping\Driver\DriverChain;
 use Post\Mount;
+use Silex\Provider\AssetServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
@@ -58,6 +59,14 @@ class Application extends \Silex\Application {
     public function init(){
         $this->initTwig();
 
+        $this->register(new AssetServiceProvider(), array(
+            'assets.version' => 'v1',
+            'assets.version_format' => '%s?version=%s',
+            'assets.named_packages' => array(
+                'css' => array('version' => 'css2', 'base_path' => '/whatever-makes-sense'),
+                'images' => array('base_urls' => array('https://img.example.com')),
+            ),
+        ));
         $this->register(new ServiceControllerServiceProvider());
         $this->register(
             new MonologServiceProvider(),
@@ -76,7 +85,7 @@ class Application extends \Silex\Application {
 	}
 
 	protected function getModuleDirectories(){
-		$includePaths = ['app/modules'];
+		$includePaths = ['app/modules/Frontend', 'app/modules/Backend'];
 		$finder = new Finder();
 
         $moduleDirectories = array_map(
@@ -103,11 +112,6 @@ class Application extends \Silex\Application {
 
         return $finder->in($moduleDirectories)->depth('<1');
 	}
-	
-	protected function initSessionsService() {
-		$this->register(new SessionServiceProvider());
-		$this['session.storage.handler'] = null;
-	}
 
 	protected function registerModules(){
 		/** @var Application $app */
@@ -123,13 +127,19 @@ class Application extends \Silex\Application {
             }
         }
 	}
+
+    protected function initSessionsService() {
+        $this->register(new SessionServiceProvider());
+        $this['session.storage.handler'] = null;
+    }
+
     protected function initTwig()
     {
         $paths = array_map(
             function ($path) {
                 return CORE_ROOT_DIR . '/' . $path;
             },
-            ['app/layouts', 'app/modules']
+            ['app/layouts', 'app/modules/Frontend', 'app/modules/Backend', 'app/layouts/backend']
         );
         $this->register(
             new TwigServiceProvider(),
@@ -152,12 +162,21 @@ class Application extends \Silex\Application {
 		    return $this['security.authorization_checker']->isGranted($role);
 		});
 		$this['twig']->addFunction($function);
+
+        $this['twig']->addFunction(new \Twig_SimpleFunction('asset', function ($asset) {
+            // implement whatever logic you need to determine the asset path
+
+            return sprintf('%s', ltrim($asset, '/'));
+        }));
     }
 
 	protected function initDoctrine(){
 		$this->register(new DoctrineServiceProvider(), [
 		    'db.options' => array(
 		        'dbname' => 'blog',
+                'host' => 'localhost',
+                'user' => 'root',
+                'password' => '99697509',
 		    ),
 		]);
 
@@ -202,7 +221,10 @@ class Application extends \Silex\Application {
 	                    ],
 	                    'users' => new UserProvider($this),
 	                ]
-				]
+				],
+                'security.access_rules' => [
+                    array('^/admin', 'ROLE_ADMIN')
+                ]
 			]
 		);
 		

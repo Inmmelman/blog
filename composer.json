@@ -22,7 +22,8 @@
     "monolog/monolog": "~1.22",
     "psr/log": "^1.0",
     "dflydev/doctrine-orm-service-provider": "^2.0",
-    "silex/web-profiler": "^2.0"
+    "silex/web-profiler": "^2.0",
+    "symfony/asset": "^3.2"
   },
    "config": {
         "bin-dir": "bin"
@@ -30,7 +31,7 @@
   "autoload": {
     "psr-0": {
       "": [
-        "app/modules", "app/Entities", "app/modules/Core/Security"
+        "app/modules", "app/modules/Frontend", "app/modules/Backend", "app/modules/Core/Security"
       ]
     }
   }
